@@ -48,24 +48,24 @@ contract('Splitter', function(accounts) {
       console.log("Carol starting balance before split: " + carol_starting_balance);
       console.log("sending first split");
       return splitterContractInstance.split({value:amount, gas:3000000});
-    }).then(success => {
-      console.log("success: " + (success ? "true" : "false"));
-      assert(success, "split was not successful");
+    }).then(txResult => {
+      console.log("success: " + (txResult !== null));
+      assert(txResult !== null, "split was not successful");
       return splitterContractInstance.getBalanceBob.call();
     }).then(function(balance) {
       var bob_ending_balance = balance;
       console.log("Bob ending balance after split: " + bob_ending_balance);
-      assert.equal(bob_ending_balance.toNumber(), bob_starting_balance.toNumber() + bobAmount, "Amount wasn't correctly sent to bob");
+      assert.strictEqual(bob_ending_balance.toString(10), bob_starting_balance.plus(bobAmount).toString(10), "Amount wasn't correctly sent to bob");
       return splitterContractInstance.getBalanceCarol.call();
     }).then(function(balance) {
       var carol_ending_balance = balance;
-      assert.equal(carol_ending_balance.toNumber(), carol_starting_balance.toNumber() + carolAmount, "Amount wasn't correctly sent to carol");
+      assert.strictEqual(carol_ending_balance.toString(10), carol_starting_balance.plus(carolAmount).toString(10), "Amount wasn't correctly sent to carol");
       console.log("Carol ending balance after split: " + carol_ending_balance);
       return web3.eth.getBalancePromise(splitterContractInstance.address);
     }).then(function(balance) {
       var contract_ending_balance = balance;
       console.log("Contract ending balance after split: " + contract_ending_balance);
-      assert.equal(contract_ending_balance.toNumber(), contract_starting_balance.toNumber() + amount, "Amount wasn't applied correctly to the contract");
+      assert.strictEqual(contract_ending_balance.toString(10), contract_starting_balance.plus(amount).toString(10), "Amount wasn't applied correctly to the contract");
     });
   });
 
@@ -94,7 +94,7 @@ contract('Splitter', function(accounts) {
     }).then(balance => {
       var bob_ending_balance = balance;
       console.log("Bob ending balance after withdraw: " + bob_ending_balance);
-      assert.equal(bob_ending_balance.toNumber(), bob_starting_balance.toNumber() - amount_to_withdraw, "Amount wasn't correctly sent to bob");
+      assert.strictEqual(bob_ending_balance.toString(10), bob_starting_balance.minus(amount_to_withdraw).toString(10), "Amount wasn't correctly sent to bob");
     });
   });
  });
