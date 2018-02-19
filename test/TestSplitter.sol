@@ -12,22 +12,22 @@ contract TestSplitter {
 
     function testSplit() {
       Splitter splitter = Splitter(DeployedAddresses.Splitter());
-      splitter.split.value(10)();
+      splitter.split.value(10)(bob, carol);
       Assert.equal(splitter.balance, 10, "Splitter contract should have the ether we just sent");
-      Assert.equal(splitter.getBalanceBob(), 5, "Bob should have half the ether we just sent");
-      Assert.equal(splitter.getBalanceCarol(), 5, "Carol should have half the ether we just sent");
+      Assert.equal(splitter.getBalance(bob), 5, "Bob should have half the ether we just sent");
+      Assert.equal(splitter.getBalance(carol), 5, "Carol should have half the ether we just sent");
     }
 
     function testWithdraw() {
       Splitter splitter = Splitter(DeployedAddresses.Splitter());
-      splitter.split.value(10)();
+      splitter.split.value(10)(bob, carol);
       splitter.withdraw(1);   // TODO: need to specify who is withdrawing
         // Xavier wrote: When you write that, this test contract is the one asking to withdraw. 
         // This is not going to fly because this test contract is neither bob nor carol.
         // You would need to do new Splitter(this, carol).
       Assert.equal(splitter.balance, 9, "Splitter contract should have the remaining ether");
-      Assert.equal(splitter.getBalanceBob(), 3, "Bob should have remaining ether to withdraw");
-      Assert.equal(splitter.getBalanceCarol(), 5, "Carol should still have all her ether");
+      Assert.equal(splitter.getBalance(bob), 3, "Bob should have remaining ether to withdraw");
+      Assert.equal(splitter.getBalance(carol), 5, "Carol should still have all her ether");
 
       // when splitter.withdraw(1) line above is present, truffle reports that this test passes successfully.
       // code below should ensure that this test fails

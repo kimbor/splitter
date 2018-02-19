@@ -2,54 +2,38 @@ pragma solidity ^0.4.13;
 
 contract Splitter {
 	address public owner;
-	address bob;
-	address carol;
-	uint bobBalance;
-	uint carolBalance;
+	mapping(address=>uint) public balances;
 
-	event LogTransfer(address indexed _from, address indexed _to, uint256 _value);
+	event LogSplit(address indexed sender, address indexed receiver1, address indexed receiver2, uint value);
 	event LogWithdraw(address indexed _to, uint256 _value);
 
-	function Splitter(address _bob, address _carol) public payable {
-		require (_bob != 0);
-		require (_carol != 0);	
+	function Splitter() public {
 		owner = msg.sender;
-		bob = _bob;
-		carol = _carol;
 	}
 
-	function split() payable public returns(bool sufficient) {
-		require(bob != 0);
-		require(carol != 0);
+	function split(address receiver1, address receiver2) payable public returns(bool sufficient) {
+		require(receiver1 != 0);
+		require(receiver2 != 0);
 		require(msg.value > 0);
+
 		uint splitAmount = msg.value / 2;
-		bobBalance += splitAmount;
-		LogTransfer(msg.sender, bob, splitAmount);
-		carolBalance += (msg.value - splitAmount);
-		LogTransfer(msg.sender, carol, splitAmount);
+		balances[receiver1] += splitAmount;
+		balances[receiver2] += (msg.value - splitAmount);
+		LogSplit(msg.sender, receiver1, receiver2, msg.value);
 		return true;
 	}
 
-	function getBalanceBob() public constant returns(uint) {
-		return bobBalance;
-	}
-	function getBalanceCarol() public constant returns(uint) {
-		return carolBalance;
+	function getBalance(address add) public constant returns (uint) {
+		return balances[add];
 	}
 
 	function withdraw(uint amount) public {
 		require(amount > 0);
-		require(msg.sender == bob || msg.sender == carol);
+		require(balances[msg.sender] >= amount);
 		LogWithdraw(msg.sender, amount);
 
-		if (msg.sender == bob) {
-			bobBalance -= amount;
-			bob.transfer(amount);
-		}
-		else if (msg.sender == carol) {
-			carolBalance -= amount;
-			carol.transfer(amount);
-		}
+		balances[msg.sender] -= amount;
+		msg.sender.transfer(amount);
 	}
 
 	// TODO: selfdestruct is a nasty solution that's almost always sub-optimal. 
@@ -62,5 +46,4 @@ contract Splitter {
         selfdestruct(owner);
         return true;
     }
-
 }

@@ -3,9 +3,9 @@ Promise.promisifyAll(web3.eth, { suffix: "Promise" });
 const Splitter = artifacts.require("./Splitter.sol");
 
 contract('Splitter', function(accounts) {
-  const aliceAddress = accounts[0];
-  const bobAddress = accounts[1];
-  const carolAddress = accounts[2];
+  const alice = accounts[0];
+  const bob = accounts[1];
+  const carol = accounts[2];
 
   let splitterContractInstance;
 
@@ -13,7 +13,7 @@ contract('Splitter', function(accounts) {
     // to the pass / fail point
   before("deploy and prepare", function() {
     console.log("running before");
-    return Splitter.new(bobAddress, carolAddress, {from:aliceAddress})
+    return Splitter.new({from:alice})
       .then(instance => {
         splitterContractInstance = instance;
         console.log("splitter initialized");
@@ -38,25 +38,25 @@ contract('Splitter', function(accounts) {
     .then(balance => {
       contract_starting_balance = balance;
       console.log("Contract starting balance before split: " + contract_starting_balance);
-      return splitterContractInstance.getBalanceBob.call();
+      return splitterContractInstance.getBalance(bob);
     }).then(balance => {
       bob_starting_balance = balance;
       console.log("Bob starting balance before split: " + bob_starting_balance);
-      return splitterContractInstance.getBalanceCarol.call();
+      return splitterContractInstance.getBalance(carol);
     }).then(balance => {
       carol_starting_balance = balance;
       console.log("Carol starting balance before split: " + carol_starting_balance);
       console.log("sending first split");
-      return splitterContractInstance.split({value:amount, gas:3000000});
+      return splitterContractInstance.split(bob, carol, {value:amount, gas:3000000});
     }).then(txResult => {
       console.log("success: " + (txResult !== null));
       assert(txResult !== null, "split was not successful");
-      return splitterContractInstance.getBalanceBob.call();
+      return splitterContractInstance.getBalance(bob);
     }).then(function(balance) {
       var bob_ending_balance = balance;
       console.log("Bob ending balance after split: " + bob_ending_balance);
       assert.strictEqual(bob_ending_balance.toString(10), bob_starting_balance.plus(bobAmount).toString(10), "Amount wasn't correctly sent to bob");
-      return splitterContractInstance.getBalanceCarol.call();
+      return splitterContractInstance.getBalance(carol);
     }).then(function(balance) {
       var carol_ending_balance = balance;
       assert.strictEqual(carol_ending_balance.toString(10), carol_starting_balance.plus(carolAmount).toString(10), "Amount wasn't correctly sent to carol");
@@ -81,20 +81,25 @@ contract('Splitter', function(accounts) {
     return web3.eth.getBalancePromise(splitterContractInstance.address)
     .then(balance => {
       contract_starting_balance = balance;
-      console.log("Contract starting balance before withdraw: " + contract_starting_balance);
-      return splitterContractInstance.getBalanceBob.call();
+      console.log("Contract balance before withdraw: " + contract_starting_balance);
+      return splitterContractInstance.getBalance(bob);
     }).then(balance => {
       bob_starting_balance = balance;
-      console.log("Bob starting balance before withdraw: " + bob_starting_balance);
+      console.log("Bob balance before withdraw: " + bob_starting_balance);
       console.log("sending bob withdraw");
-      return splitterContractInstance.withdraw(amount_to_withdraw, {from: bobAddress });
+      return splitterContractInstance.withdraw(amount_to_withdraw, {from: bob});
     }).then(txObject => {
       console.log("withdraw successful");
-      return splitterContractInstance.getBalanceBob.call();
+      return splitterContractInstance.getBalance(bob);
     }).then(balance => {
       var bob_ending_balance = balance;
-      console.log("Bob ending balance after withdraw: " + bob_ending_balance);
+      console.log("Bob balance after withdraw: " + bob_ending_balance);
       assert.strictEqual(bob_ending_balance.toString(10), bob_starting_balance.minus(amount_to_withdraw).toString(10), "Amount wasn't correctly sent to bob");
+      return web3.eth.getBalancePromise(splitterContractInstance.address)
+    }).then(balance => {
+      var contract_ending_balance = balance;
+      console.log("Contract balance after withdraw: " + contract_ending_balance);
+      assert.strictEqual(contract_ending_balance.toString(10), contract_starting_balance.minus(amount_to_withdraw).toString(10), "Amount wasn't debited from contract");
     });
   });
 
