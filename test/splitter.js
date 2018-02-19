@@ -27,7 +27,7 @@ contract('Splitter', function(accounts) {
     console.log("Alice starting balance: " + alice_starting_balance.toString(10));
 
 //    var amount = 10;
-    var amount = 100000000000000;
+    var amount = 10000;
     var splitAmount = amount / 2;
     console.log("amount to split: " + amount);
     console.log("split amount: " + splitAmount);
@@ -76,7 +76,7 @@ contract('Splitter', function(accounts) {
 
     var bob_starting_balance;
     var contract_starting_balance;
-    var amount_to_withdraw = 1;
+    var amount_to_withdraw = 100;
 
     console.log("withdraw initialization");
 
@@ -89,7 +89,7 @@ contract('Splitter', function(accounts) {
       bob_starting_balance = balance.toNumber();
       console.log("Bob starting balance: " + bob_starting_balance.toString(10));
       console.log("sending bob withdrawal");
-      return splitterContractInstance.withdraw(amount_to_withdraw, {from: web3.eth.accounts[1], gas:100000 });
+      return splitterContractInstance.withdraw(amount_to_withdraw, {from: web3.eth.accounts[1] });
     }).then(txObject => {
       console.log("withdraw successful");
       return splitterContractInstance.getBalanceBob.call();

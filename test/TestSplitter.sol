@@ -1,4 +1,4 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.13;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
@@ -14,23 +14,16 @@ contract TestSplitter {
       Assert.equal(splitter.balance, 10, "Splitter contract should have the ether we just sent");
       Assert.equal(splitter.getBalanceBob(), 5, "Bob should have half the ether we just sent");
       Assert.equal(splitter.getBalanceCarol(), 5, "Carol should have half the ether we just sent");
+      uint256 i = 1;
+      Assert.equal(i, 2, "are these asserts even getting called?"); // this is NOT failing. why not?
     }
 
-
-  // function testInitialBalanceUsingDeployedContract() {
-  //   Splitter splitter = Splitter(DeployedAddresses.Splitter());
-
-    // uint expected = 10000;
-
-    // Assert.equal(meta.getBalance(tx.origin), expected, "Owner should have 10000 MetaCoin initially");
-  // }
-
-  // function testInitialBalanceWithNewMetaCoin() {
-  //   MetaCoin meta = new MetaCoin();
-
-  //   uint expected = 10000;
-
-  //   Assert.equal(meta.getBalance(tx.origin), expected, "Owner should have 10000 MetaCoin initially");
-  // }
-
+    function testWithdraw() {
+      Splitter splitter = new Splitter(bob, carol);
+      splitter.split.value(10)();
+      splitter.withdraw(1);
+      Assert.equal(splitter.balance, 9, "Splitter contract should have the remaining ether");
+      Assert.equal(splitter.getBalanceBob(), 3, "Bob should have remaining ether to withdraw");
+      Assert.equal(splitter.getBalanceCarol(), 5, "Carol should still have all her ether");
+    }
 }
