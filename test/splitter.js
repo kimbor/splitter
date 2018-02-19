@@ -9,6 +9,8 @@ contract('Splitter', function(accounts) {
 
   let splitterContractInstance;
 
+    // Deploy a contract(s) and prepare it up
+    // to the pass / fail point
   before("deploy and prepare", function() {
     console.log("running before");
     return Splitter.new(bobAddress, carolAddress, {from:aliceAddress})
@@ -17,8 +19,6 @@ contract('Splitter', function(accounts) {
         console.log("splitter initialized");
       });
   });
-    // Deploy a contract(s) and prepare it up
-    // to the pass / fail point
 
   it("should send coin correctly", function() {
     console.log("running 'should send coin correctly' test");
@@ -97,4 +97,6 @@ contract('Splitter', function(accounts) {
       assert.strictEqual(bob_ending_balance.toString(10), bob_starting_balance.minus(amount_to_withdraw).toString(10), "Amount wasn't correctly sent to bob");
     });
   });
+
+  //TODO: More tests!
  });
