@@ -1,5 +1,5 @@
-var Splitter = artifacts.require("./Splitter.sol");
+var Remittance = artifacts.require("./Remittance.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(Splitter, {gas:400000});
+  deployer.deploy(Remittance, {gas:400000});
 };
