@@ -1,2 +1,2 @@
-splitter
-Split Ethereum funds. Uses Solidity and Truffle.
+# splitter
+Contract to split Ethereum funds. Uses Solidity and Truffle.
