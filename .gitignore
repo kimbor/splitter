@@ -8,3 +8,4 @@ app/web3\.js
 app/web3\.js\.map
 
 contracts/Migrations\.sol
+/.idea/
