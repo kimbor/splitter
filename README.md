@@ -9,4 +9,4 @@ iris add
 one more test. test with -s.
 add a line from command to test commit.
 
-modify from intelliJ.
+one more test from IntelliJ.
